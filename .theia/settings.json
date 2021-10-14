@@ -1,0 +1,12 @@
+{
+   "files.exclude": {
+      ".git": true,
+      ".theia": true,
+      ".gitignore": true,
+      ".gitpod.yml": true,
+      "**/.classpath": true,
+      "**/.project": true,
+      "**/.settings": true,
+      "**/.factorypath": true
+   }
+}

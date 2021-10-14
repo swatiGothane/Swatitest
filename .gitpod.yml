@@ -1,0 +1,33 @@
+# we use a pre-build docker image instead of a Dockerfile, because we can pre-fetch that onto Gitpod infrastructure.
+image: meysholdt/applitools-dev-environment:latest
+
+# open up the port for VNC
+# ignore all other ports
+ports:
+  - port: 6080
+    onOpen: open-preview
+  - port: 1-6079
+    onOpen: ignore
+  - port: 6081-65534
+    onOpen: ignore
+
+# in 'init' we can have bash-code that is executed during the pre-build.
+# We also run 'mvn test' without actually running the tests to ensure all dependencies are fetched.
+# in 'command' we have bash-code that is executen in the Gitpod Terminal View when the user opens a workspace.
+tasks:
+- init: |
+    mvn install
+    mvn test -Dtest=\!CBasicDemo -DfailIfNoTests=false || true
+  command: |
+    gp open src/test/java/com/applitools/quickstarts/BasicDemo.java
+    mvn test -Dtest=BasicDemo --no-snapshot-updates 
+    MVN_EXIT_CODE=$?
+    if ( ! -z "$APPLITOOLS_API_KEY" ) # Availability of APPLITOOLS_API_KEY implies the Applitools Terms of Service and Privacy Statement have been accepted.
+    then 
+      curl \
+        --data-urlencode "repository=tutorial-selenium-java-basic" \
+        --data-urlencode "email=$GITPOD_GIT_USER_EMAIL" \
+        --data-urlencode "user=$GITPOD_GIT_USER_NAME" \
+        --data-urlencode "mvn_exit_code=$MVN_EXIT_CODE" \
+        https://httpbin.org/post
+    fi
